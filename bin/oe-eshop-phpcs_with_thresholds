@@ -47,5 +47,5 @@ if ($errorsCount > $threshold) {
     exit(1);
 }
 
-echo 'Code sniffer check passed successfully!'.PHP_EOL;
+echo "Code sniffer check passed successfully! Errors count is $errorsCount, threshold is set to $threshold.".PHP_EOL;
 exit(0);
