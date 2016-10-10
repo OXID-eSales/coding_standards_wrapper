@@ -16,36 +16,89 @@
  * You should have received a copy of the GNU General Public License
  * along with OXID eSales Coding Standards Wrapper. If not, see <http://www.gnu.org/licenses/>.
  *
- * @link http://www.oxid-esales.com
+ * @link          http://www.oxid-esales.com
  * @copyright (C) OXID eSales AG 2003-2015
  */
 
 /**
- * @param string $output
- * @return int
+ * Extract the number of errors, warnings and affected files from the phpcs summary
+ *
+ * @param array $output
+ *
+ * @return array With statistics about 'errorsCount' => nr of errors, 'warningsCount' => nr of warnings,  'filesCount' => nr of affected files,
  */
-function extractErrorsCount($output)
+function extractStatistics($output)
 {
-    $result = explode('ERRORS', $output);
-    preg_match('!\d+!', $result[0], $matches);
-    return (int)$matches[0];
+    $result = false;
+    $matches = array();
+
+    /**
+     * The only key of the filtered array already holds the summary.
+     * $errorSummary is NULL, if the summary was not present in the output
+     */
+    $filteredOutput = array_filter($output, 'filterTotalSummary');
+    $errorSummary = reset($filteredOutput);
+
+    /** Extract the stats for the summary */
+    if ($errorSummary) {
+        preg_match('/(?P<errorsCount>\d+).*(?P<warningsCount>\d+).*(?P<filesCount>\d+)/', $errorSummary, $matches);
+    }
+
+    /** Validate the result of extraction */
+    if (
+        array_key_exists('errorsCount', $matches) &&
+        array_key_exists('warningsCount', $matches) &&
+        array_key_exists('filesCount', $matches)
+
+    ) {
+        /** We need integers for the further processing */
+        $result = array_map('intval', $matches);
+    }
+
+    return $result;
+}
+
+/**
+ * Callback function for array_filter.
+ * Return true, if a given string contains the substring 'A TOTAL OF'
+ *
+ * @param string $value
+ *
+ * @return bool
+ */
+function filterTotalSummary($value)
+{
+    return false !== strpos($value, 'A TOTAL OF');
 }
 
 $scriptPath = array_shift($argv);
 $threshold = 542;
 
-$result = exec("vendor/bin/phpcsoxid --report=summary | grep \"A TOTAL OF\"", $output, $return);
-$errorsCount = extractErrorsCount($result);
+$command = 'vendor/bin/phpcsoxid --report=summary';
+$result = exec($command, $output, $return);
 
-if (!is_int($errorsCount)) {
-    echo 'Error occurred when parsing phpcsoxid result.'.PHP_EOL;
+$statistics = extractStatistics($output);
+if (!$statistics) {
+    echo 'Error occurred when parsing phpcsoxid result.' . PHP_EOL;
+    echo 'phpcs commmand was: ' . $command . PHP_EOL;
     exit(1);
 }
 
+$errorsCount = $statistics['errorsCount'];
 if ($errorsCount > $threshold) {
-    echo "Current threshold is set to $threshold, but the amount of errors is $errorsCount.".PHP_EOL;
+    echo "Code sniffer check FAILED! Current threshold is set to $threshold, but the amount of errors is $errorsCount." . PHP_EOL;
+    echo "You added some code, which is not compliant with the coding standards of OXID eShop." . PHP_EOL;
+    echo "Please, https://github.com/OXID-eSales/coding_standards for more information." . PHP_EOL;
+    echo "For diagnostics compare the summary of this code sniffer run with the summary of the last successful run." . PHP_EOL;
+    echo PHP_EOL;
+    echo 'CODE SNIFFER SUMMARY' . PHP_EOL;
+    echo '--------------------' . PHP_EOL;
+    echo implode(PHP_EOL, $output);
     exit(1);
 }
 
-echo "Code sniffer check passed successfully! Errors count is $errorsCount, threshold is set to $threshold.".PHP_EOL;
+echo "Code sniffer check passed successfully! Errors count is $errorsCount, threshold is set to $threshold." . PHP_EOL;
+echo 'CODE SNIFFER SUMMARY' . PHP_EOL;
+echo '--------------------' . PHP_EOL;
+echo implode(PHP_EOL, $output);
 exit(0);
