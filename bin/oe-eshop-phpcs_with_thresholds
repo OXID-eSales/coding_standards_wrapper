@@ -32,7 +32,7 @@ function extractErrorsCount($output)
 }
 
 $scriptPath = array_shift($argv);
-$threshold = 623;
+$threshold = 542;
 
 $result = exec("vendor/bin/phpcsoxid --report=summary | grep \"A TOTAL OF\"", $output, $return);
 $errorsCount = extractErrorsCount($result);
