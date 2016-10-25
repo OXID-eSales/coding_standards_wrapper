@@ -72,7 +72,7 @@ function filterTotalSummary($value)
 }
 
 $scriptPath = array_shift($argv);
-$threshold = 542;
+$threshold = 535;
 
 $command = 'vendor/bin/phpcsoxid --report=summary';
 $result = exec($command, $output, $return);
