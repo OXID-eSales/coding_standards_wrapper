@@ -5,7 +5,7 @@
     "homepage": "https://www.oxid-esales.com/en/home.html",
     "license": "GPL-3.0",
     "require": {
-        "oxid-esales/coding-standards": "dev-master"
+        "oxid-esales/coding-standards": "*"
     },
     "bin": [
         "bin/oe-eshop-phpcs_with_thresholds"
