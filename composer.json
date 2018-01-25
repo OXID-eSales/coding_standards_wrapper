@@ -3,7 +3,7 @@
     "description": "OXID eShop coding standards wrapper",
     "type": "library",
     "homepage": "https://www.oxid-esales.com/en/home.html",
-    "license": "GPL-3.0",
+    "license": "GPL-3.0-only",
     "require": {
         "oxid-esales/coding-standards": "*"
     },
