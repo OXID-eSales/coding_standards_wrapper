@@ -59,7 +59,7 @@ function filterTotalSummary($value)
 $scriptPath = array_shift($argv);
 $threshold = (int)getenv('OXID_ESHOP_CS_THRESHOLD') ?: 1200;
 
-$command = 'vendor/bin/phpcs --standard=PSR12 --report=summary --extensions=php source/';
+$command = 'vendor/bin/phpcs --standard=PSR12 --report=summary --extensions=php --ignore=tmp/*,modules/*,_cc.php,config.inc.php source/';
 $result = exec($command, $output, $return);
 
 $statistics = extractStatistics($output);
